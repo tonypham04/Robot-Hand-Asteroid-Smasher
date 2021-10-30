@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import random
 
 # Platform independent paths
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -36,6 +37,30 @@ class Player(pygame.sprite.Sprite):
         # The actual gameview is 1/2 the screen size so divide the mouse coordinates by 2 to account for the 2x scaling
         self.rect.center = (pos[0] / 2, pos[1] / 2)
 
+class Asteroid(pygame.sprite.Sprite):
+    def __init__(self):
+        """Initialize an instance of the Asteroid class."""
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image('asteroid.png', (255, 255, 255))
+        self.rect = self.image.get_rect()
+        self.velocity = [random.choice([-2, -1, 1, 2]), random.choice([-2, -1, 1, 2])]
+
+    def update(self):
+        """Moves the asteroid within the game boundaries."""
+        # Random movement
+        self.rect.move_ip(self.velocity)
+        # Check for bounds
+        screen_size = pygame.display.get_window_size()
+        # Divide x and y of screen size by 2 to get the boundaries prior to scaling up 2x
+        x_boundaries = (0, screen_size[0] / 2)
+        y_boundaries = (0, screen_size[1] / 2)
+        if self.rect.center[0] < x_boundaries[0] or self.rect.center[0] > x_boundaries[1]:
+            # Flip the x velocity then move back into the gameview
+            self.velocity[0] = -self.velocity[0]
+            self.rect.move_ip(self.velocity)
+        if self.rect.center[1] < y_boundaries[0] or self.rect.center[1] > y_boundaries[1]:
+            self.velocity[1] = -self.velocity[1]
+            self.rect.move_ip(self.velocity)
 
 def main():
     """The main method runs when the script is run and houses the game loop and variables for the game."""
@@ -48,7 +73,9 @@ def main():
     clock = pygame.time.Clock()
     # Prepare game objects
     player = Player()
-    sprites_group = pygame.sprite.RenderPlain((player))
+    asteroids = []
+    asteroids.extend([Asteroid(), Asteroid(), Asteroid()])
+    sprites_group = pygame.sprite.RenderPlain((asteroids, player))
     while True:
         clock.tick(60)
         for event in pygame.event.get():
