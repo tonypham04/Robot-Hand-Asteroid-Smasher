@@ -6,6 +6,7 @@ import random
 # Platform independent paths
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 img_dir = os.path.join(main_dir, 'images')
+sound_dir = os.path.join(main_dir, 'audio')
 
 def load_image(img_filename: str, colorkey=None) -> pygame.Surface:
     """Loads an image from an image file and applies transparent color if applicable. A Surface representation of the image is returned."""
@@ -24,18 +25,21 @@ def load_image(img_filename: str, colorkey=None) -> pygame.Surface:
         img.set_colorkey(colorkey, pygame.RLEACCEL)
     return img
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        """Initialize an instance of the Player class."""
-        pygame.sprite.Sprite.__init__(self)
-        self.image = load_image('player.png', (255, 255, 255))
-        self.rect = self.image.get_rect()
-
-    def update(self):
-        """Updates the player position based on where the mouse cursor is."""
-        pos = pygame.mouse.get_pos()
-        # The actual gameview is 1/2 the screen size so divide the mouse coordinates by 2 to account for the 2x scaling
-        self.rect.center = (pos[0] / 2, pos[1] / 2)
+def load_sound(sound_filename: str):
+    """Loads a sound file and returns a corresponding Sound object. If pygame.mixer is not available an instance of a dummy class containing a play method is returned instead."""
+    class NoSound:
+        """Dummy class used in the event pygame.mixer is not available."""
+        def play(self):
+            None
+    if not pygame.mixer:
+        return NoSound()
+    sound_location = os.path.join(sound_dir, sound_filename)
+    try:
+        sound = pygame.mixer.Sound(sound_location)
+    except pygame.error as msg:
+        print('Failed to load:', sound_filename)
+        raise SystemExit(msg)
+    return sound
 
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self):
@@ -43,7 +47,9 @@ class Asteroid(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('asteroid.png', (255, 255, 255))
         self.rect = self.image.get_rect()
+        # TODO: Change velocity to be a random float for move variation and decreased likely hood of overlap
         self.velocity = [random.choice([-2, -1, 1, 2]), random.choice([-2, -1, 1, 2])]
+        self.explosion_sound = load_sound('explosion.wav')
 
     def update(self):
         """Moves the asteroid within the game boundaries."""
@@ -61,6 +67,25 @@ class Asteroid(pygame.sprite.Sprite):
         if self.rect.center[1] < y_boundaries[0] or self.rect.center[1] > y_boundaries[1]:
             self.velocity[1] = -self.velocity[1]
             self.rect.move_ip(self.velocity)
+        # TODO: Add logic to rotate the asteroids
+
+    def explode(self):
+        """Plays an explosion sound."""
+        # TODO: Visual effect for exploding
+        self.explosion_sound.play()
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        """Initialize an instance of the Player class."""
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image('player.png', (255, 255, 255))
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        """Updates the player position based on where the mouse cursor is."""
+        pos = pygame.mouse.get_pos()
+        # The actual gameview is 1/2 the screen size so divide the mouse coordinates by 2 to account for the 2x scaling
+        self.rect.center = (pos[0] / 2, pos[1] / 2)
 
 def main():
     """The main method runs when the script is run and houses the game loop and variables for the game."""
@@ -82,6 +107,13 @@ def main():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                hit_list = pygame.sprite.spritecollide(player, sprites_group, False)
+                hit_asteroids = [obj for obj in hit_list if type(obj) == Asteroid]
+                if len(hit_asteroids) != 0:
+                    hit_asteroids[0].explode()
+                    sprites_group.remove(hit_asteroids)
+        # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
         sprites_group.draw(gameview)
