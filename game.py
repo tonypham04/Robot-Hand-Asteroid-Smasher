@@ -87,6 +87,17 @@ class Player(pygame.sprite.Sprite):
         # The actual gameview is 1/2 the screen size so divide the mouse coordinates by 2 to account for the 2x scaling
         self.rect.center = (pos[0] / 2, pos[1] / 2)
 
+def create_asteroids(nun_asteroids: int) -> list[Asteroid]:
+    """Returns a list of asteroids containing the specified number of asteroids"""
+    asteroids = []
+    for i in range(nun_asteroids):
+        asteroids.append(Asteroid())
+    return asteroids
+
+def has_asteroids(group: pygame.sprite.RenderPlain) -> bool:
+    """Returns a bool of whether or not a RenderPlain group has any asteroids in it."""
+    return len([obj for obj in group if type(obj) == Asteroid]) > 0
+
 def main():
     """The main method runs when the script is run and houses the game loop and variables for the game."""
     # Initialize game components
@@ -98,8 +109,8 @@ def main():
     clock = pygame.time.Clock()
     # Prepare game objects
     player = Player()
-    asteroids = []
-    asteroids.extend([Asteroid(), Asteroid(), Asteroid()])
+    num_asteroids = 3
+    asteroids = create_asteroids(num_asteroids)
     sprites_group = pygame.sprite.RenderPlain((asteroids, player))
     while True:
         clock.tick(60)
@@ -113,6 +124,14 @@ def main():
                 if len(hit_asteroids) != 0:
                     hit_asteroids[0].explode()
                     sprites_group.remove(hit_asteroids)
+                # TODO: Clicking and missing an asteroid
+                # Check if the group has any asteroids remaining
+                if not has_asteroids(sprites_group):
+                    # Refill the group with one more asteroid than before
+                    num_asteroids += 1
+                    asteroids = create_asteroids(num_asteroids)
+                    sprites_group.add(asteroids)
+
         # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
