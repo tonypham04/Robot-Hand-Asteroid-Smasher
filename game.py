@@ -7,6 +7,7 @@ import random
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 img_dir = os.path.join(main_dir, 'images')
 sound_dir = os.path.join(main_dir, 'audio')
+font_dir = os.path.join(main_dir, 'font')
 
 def load_image(img_filename: str, colorkey=None) -> pygame.Surface:
     """Loads an image from an image file and applies transparent color if applicable. A Surface representation of the image is returned."""
@@ -40,6 +41,15 @@ def load_sound(sound_filename: str):
         print('Failed to load:', sound_filename)
         raise SystemExit(msg)
     return sound
+
+def load_font(font_filename: str, font_size: int) -> pygame.font.Font:
+    """Loads a font file and returns a Font object with the specified font and size on success. Returns the default pygame font with user specified size otherwise."""
+    font_location = os.path.join(font_dir, font_filename)
+    try:
+        font = pygame.font.Font(font_location, font_size)
+    except:
+        font = pygame.font.Font(None, font_size)
+    return font
 
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self):
@@ -112,6 +122,7 @@ def main():
     num_asteroids = 3
     asteroids = create_asteroids(num_asteroids)
     sprites_group = pygame.sprite.RenderPlain((asteroids, player))
+    score = 0
     while True:
         clock.tick(60)
         for event in pygame.event.get():
@@ -123,6 +134,9 @@ def main():
                 hit_asteroids = [obj for obj in hit_list if type(obj) == Asteroid]
                 if len(hit_asteroids) != 0:
                     hit_asteroids[0].explode()
+                    # Update the score with 1 points awards for every asteroid destroyed
+                    # Showing * 1 for clarity that each asteroid is worth 1 point
+                    score += len(hit_asteroids) * 1
                     sprites_group.remove(hit_asteroids)
                 # TODO: Clicking and missing an asteroid
                 # Check if the group has any asteroids remaining
@@ -135,6 +149,11 @@ def main():
         # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
+        if pygame.font:
+            font = load_font('Pixeltype.ttf', 24)
+            text = font.render(f'Score: {score}', False, (255, 255, 255))
+            textpos = text.get_rect(topleft = (5, 5))
+        gameview.blit(text, textpos)
         sprites_group.draw(gameview)
         scaled_gameview = pygame.transform.scale(gameview, (screen.get_width(), screen.get_height()))
         screen.blit(scaled_gameview, (0, 0))
@@ -145,3 +164,4 @@ if __name__ == '__main__':
 # References
 # Line by Line Chimp (pygame docs, https://www.pygame.org/docs/tut/ChimpLineByLine.html)
 # pygame.Surface.set_colorkey (pygame docs, https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_colorkey)
+# Pixeltype.ttf font obtained from: https://github.com/clear-code-projects/UltimatePygameIntro/tree/main/font
