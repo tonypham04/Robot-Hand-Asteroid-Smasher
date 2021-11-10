@@ -108,6 +108,47 @@ def has_asteroids(group: pygame.sprite.RenderPlain) -> bool:
     """Returns a bool of whether or not a RenderPlain group has any asteroids in it."""
     return len([obj for obj in group if type(obj) == Asteroid]) > 0
 
+# TODO: Separate class for time conversions?
+
+def minutesToMilliseconds(minutes: float) -> float:
+    """Converts minutes into milliseconds."""
+    seconds = minutesToSeconds(minutes)
+    return secondsToMilliseconds(seconds)
+
+def minutesToSeconds(minutes: float) -> float:
+    """Converts minutes to seconds."""
+    return minutes * 60
+
+def secondsToMilliseconds(seconds: float) -> float:
+    """Converts seconds to milliseconds."""
+    return seconds * 1000
+
+def secondsToMinutes(seconds: float) -> float:
+    """Converts seconds to minutes."""
+    return seconds * 1 / 60
+
+def millisecondsToSeconds(milliseconds: float) -> float:
+    """Converts millseconds to seconds."""
+    return milliseconds * 1 / 1000
+
+def millisecondsToMinutes(milliseconds: float) -> float:
+    """Converts milliseconds to minutes."""
+    seconds = millisecondsToSeconds(milliseconds)
+    return secondsToMinutes(seconds)
+
+def millisecondsToMinutesSecondsFormat(milliseconds: float) -> str:
+    """Converts millseconds to a string with time formated as {minutes}:{seconds}."""
+    # Convert milliseconds to minutes with remainder
+    minutes = millisecondsToMinutes(milliseconds)
+    # Convert remainder to seconds
+    remainder = minutes - int(minutes)
+    seconds = minutesToSeconds(remainder)
+    formatted_time = f'{int(minutes)}:{int(seconds)}'
+    # Add a leading zero to the seconds if the number of seconds is a single digit number
+    if int(seconds) < 10:
+        formatted_time = f'{int(minutes)}:0{int(seconds)}'
+    return formatted_time
+
 def main():
     """The main method runs when the script is run and houses the game loop and variables for the game."""
     # Initialize game components
@@ -123,13 +164,15 @@ def main():
     asteroids = create_asteroids(num_asteroids)
     sprites_group = pygame.sprite.RenderPlain((asteroids, player))
     score = 0
+    time_limit = minutesToMilliseconds(2)
+    game_active = True
     while True:
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and game_active:
                 hit_list = pygame.sprite.spritecollide(player, sprites_group, False)
                 hit_asteroids = [obj for obj in hit_list if type(obj) == Asteroid]
                 if len(hit_asteroids) != 0:
@@ -149,11 +192,29 @@ def main():
         # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
-        if pygame.font:
-            font = load_font('Pixeltype.ttf', 24)
-            text = font.render(f'Score: {score}', False, (255, 255, 255))
-            textpos = text.get_rect(topleft = (5, 5))
-        gameview.blit(text, textpos)
+        remaining_time = time_limit - pygame.time.get_ticks()
+        if remaining_time <= 0:
+            game_active = False
+        if game_active:
+            if pygame.font:
+                font = load_font('Pixeltype.ttf', 16)
+                # Score Text
+                text = font.render(f'Score: {score}', False, (255, 255, 255))
+                textpos = text.get_rect(topleft = (5, 5))
+                # Remaining Time Text
+                remaining_time_text_color = (255, 255, 255)
+                if remaining_time < secondsToMilliseconds(10):
+                    remaining_time_text_color = (255, 0, 0)
+                remaining_time_text = font.render(f'Time: {millisecondsToMinutesSecondsFormat(remaining_time)}', False, remaining_time_text_color)
+                remaining_time_text_pos = remaining_time_text.get_rect(topleft = (textpos.x, textpos.y + 10))
+                gameview.blit(remaining_time_text, remaining_time_text_pos)
+                gameview.blit(text, textpos)
+        else:
+            if pygame.font:
+                font = load_font('Pixeltype.tff', 24)
+                end_game_text = font.render('Thanks for playing!', False, (255, 255, 255))
+                end_game_text_pos = end_game_text.get_rect(center = (gameview.get_width() / 2, gameview.get_height() / 2))
+                gameview.blit(end_game_text, end_game_text_pos)
         sprites_group.draw(gameview)
         scaled_gameview = pygame.transform.scale(gameview, (screen.get_width(), screen.get_height()))
         screen.blit(scaled_gameview, (0, 0))
