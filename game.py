@@ -108,27 +108,36 @@ def has_asteroids(group: pygame.sprite.RenderPlain) -> bool:
     """Returns a bool of whether or not a RenderPlain group has any asteroids in it."""
     return len([obj for obj in group if type(obj) == Asteroid]) > 0
 
+# TODO: Separate class for time conversions?
+
 def minutesToMilliseconds(minutes: float) -> float:
+    """Converts minutes into milliseconds."""
     seconds = minutesToSeconds(minutes)
     return secondsToMilliseconds(seconds)
 
 def minutesToSeconds(minutes: float) -> float:
+    """Converts minutes to seconds."""
     return minutes * 60
 
 def secondsToMilliseconds(seconds: float) -> float:
+    """Converts seconds to milliseconds."""
     return seconds * 1000
 
 def secondsToMinutes(seconds: float) -> float:
+    """Converts seconds to minutes."""
     return seconds * 1 / 60
 
 def millisecondsToSeconds(milliseconds: float) -> float:
+    """Converts millseconds to seconds."""
     return milliseconds * 1 / 1000
 
 def millisecondsToMinutes(milliseconds: float) -> float:
+    """Converts milliseconds to minutes."""
     seconds = millisecondsToSeconds(milliseconds)
     return secondsToMinutes(seconds)
 
 def millisecondsToMinutesSecondsFormat(milliseconds: float) -> str:
+    """Converts millseconds to a string with time formated as {minutes}:{seconds}."""
     # Convert milliseconds to minutes with remainder
     minutes = millisecondsToMinutes(milliseconds)
     # Convert remainder to seconds
