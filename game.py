@@ -2,12 +2,14 @@ import pygame
 import sys
 import os
 import random
+import json
 
 # Platform independent paths
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 img_dir = os.path.join(main_dir, 'images')
 sound_dir = os.path.join(main_dir, 'audio')
 font_dir = os.path.join(main_dir, 'font')
+data_dir = os.path.join(main_dir, 'data')
 
 def load_image(img_filename: str, colorkey=None) -> pygame.Surface:
     """Loads an image from an image file and applies transparent color if applicable. A Surface representation of the image is returned."""
@@ -50,6 +52,17 @@ def load_font(font_filename: str, font_size: int) -> pygame.font.Font:
     except:
         font = pygame.font.Font(None, font_size)
     return font
+
+def load_data(data_filename: str, permissions: str):
+    """Loads a JSON file and returns a dictionary representation of the JSON file."""
+    # Attempt to load the user specified file
+    data_location = os.path.join(data_dir, data_filename)
+    try:
+        with open(data_location, permissions) as file:
+            return json.load(file)
+    except pygame.error as msg:
+        print('Failed to load:', data_filename)
+        raise SystemExit(msg)
 
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self):
@@ -164,6 +177,8 @@ def main():
     asteroids = create_asteroids(num_asteroids)
     sprites_group = pygame.sprite.RenderPlain((asteroids, player))
     score = 0
+    high_score = load_data('high_score.json', 'r')['high_score']
+    high_score_color = (255, 255, 255)
     time_limit = minutesToMilliseconds(2)
     game_active = True
     while True:
@@ -188,7 +203,6 @@ def main():
                     num_asteroids += 1
                     asteroids = create_asteroids(num_asteroids)
                     sprites_group.add(asteroids)
-
         # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
@@ -209,6 +223,14 @@ def main():
                 remaining_time_text_pos = remaining_time_text.get_rect(topleft = (textpos.x, textpos.y + 10))
                 gameview.blit(remaining_time_text, remaining_time_text_pos)
                 gameview.blit(text, textpos)
+                # High Score Text
+                # Check if the user has achieved a new high score
+                if score > high_score:
+                    high_score = score
+                    high_score_color = (57, 255, 20)
+                high_score_text = font.render(f'High Score: {high_score}', False, high_score_color)
+                high_score_textpos = high_score_text.get_rect(topright = (gameview.get_width() - 5, 5))
+                gameview.blit(high_score_text, high_score_textpos)
         else:
             if pygame.font:
                 font = load_font('Pixeltype.tff', 24)
