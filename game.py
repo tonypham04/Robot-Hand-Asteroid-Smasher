@@ -64,6 +64,13 @@ def load_data(data_filename: str, permissions: str):
         print('Failed to load:', data_filename)
         raise SystemExit(msg)
 
+def save_data(json_data_filename: str, data):
+    """Saves the specified data inside the specified JSON file."""
+    # Attempt to open the file and write data to it
+    data_location = os.path.join(data_dir, json_data_filename)
+    with open(data_location, 'w') as f:
+        json.dump(data, f)
+
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self):
         """Initialize an instance of the Asteroid class."""
@@ -178,7 +185,7 @@ def main():
     sprites_group = pygame.sprite.RenderPlain((asteroids, player))
     score = 0
     high_score = load_data('high_score.json', 'r')['high_score']
-    high_score_color = (255, 255, 255)
+    current_high_score_color = (255, 255, 255)
     time_limit = minutesToMilliseconds(2)
     game_active = True
     while True:
@@ -218,30 +225,34 @@ def main():
                 # Remaining Time Text
                 remaining_time_text_color = (255, 255, 255)
                 if remaining_time < secondsToMilliseconds(10):
-                    remaining_time_text_color = (255, 0, 0)
+                    remaining_time_text_color = (255, 87, 51)
                 remaining_time_text = font.render(f'Time: {millisecondsToMinutesSecondsFormat(remaining_time)}', False, remaining_time_text_color)
                 remaining_time_text_pos = remaining_time_text.get_rect(topleft = (textpos.x, textpos.y + 10))
                 gameview.blit(remaining_time_text, remaining_time_text_pos)
                 gameview.blit(text, textpos)
                 # High Score Text
                 # Check if the user has achieved a new high score
-                if score > high_score:
-                    high_score = score
-                    high_score_color = (57, 255, 20)
-                high_score_text = font.render(f'High Score: {high_score}', False, high_score_color)
+                # Don't alter the original high score, use a local copy instead
+                current_high_score = high_score
+                if score > current_high_score:
+                    current_high_score = score
+                    current_high_score_color = (57, 255, 20)
+                high_score_text = font.render(f'High Score: {current_high_score}', False, current_high_score_color)
                 high_score_textpos = high_score_text.get_rect(topright = (gameview.get_width() - 5, 5))
                 gameview.blit(high_score_text, high_score_textpos)
         else:
-            old_high_score = load_data('high_score.json', 'r')['high_score']
             if pygame.font:
                 font = load_font('Pixeltype.tff', 24)
                 end_game_text = font.render('Thanks for playing!', False, (255, 255, 255))
                 end_game_text_pos = end_game_text.get_rect(center = (gameview.get_width() / 2, gameview.get_height() / 2))
                 gameview.blit(end_game_text, end_game_text_pos)
-                if high_score > old_high_score:
-                    new_high_score_text = font.render(f'New High Score: {high_score}', False, (57, 255, 20))
+                if score > high_score:
+                    # Render the new high score
+                    new_high_score_text = font.render(f'New High Score: {score}', False, (57, 255, 20))
                     new_high_score_pos = new_high_score_text.get_rect(center = (gameview.get_width() / 2, gameview.get_height()  * 3 / 4))
                     gameview.blit(new_high_score_text, new_high_score_pos)
+                    # Save the new high score
+                    save_data('high_score.json', {"high_score": score})
         sprites_group.draw(gameview)
         scaled_gameview = pygame.transform.scale(gameview, (screen.get_width(), screen.get_height()))
         screen.blit(scaled_gameview, (0, 0))
