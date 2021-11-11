@@ -232,11 +232,16 @@ def main():
                 high_score_textpos = high_score_text.get_rect(topright = (gameview.get_width() - 5, 5))
                 gameview.blit(high_score_text, high_score_textpos)
         else:
+            old_high_score = load_data('high_score.json', 'r')['high_score']
             if pygame.font:
                 font = load_font('Pixeltype.tff', 24)
                 end_game_text = font.render('Thanks for playing!', False, (255, 255, 255))
                 end_game_text_pos = end_game_text.get_rect(center = (gameview.get_width() / 2, gameview.get_height() / 2))
                 gameview.blit(end_game_text, end_game_text_pos)
+                if high_score > old_high_score:
+                    new_high_score_text = font.render(f'New High Score: {high_score}', False, (57, 255, 20))
+                    new_high_score_pos = new_high_score_text.get_rect(center = (gameview.get_width() / 2, gameview.get_height()  * 3 / 4))
+                    gameview.blit(new_high_score_text, new_high_score_pos)
         sprites_group.draw(gameview)
         scaled_gameview = pygame.transform.scale(gameview, (screen.get_width(), screen.get_height()))
         screen.blit(scaled_gameview, (0, 0))
