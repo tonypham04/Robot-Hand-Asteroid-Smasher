@@ -79,6 +79,9 @@ class Asteroid(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # TODO: Change velocity to be a random float for move variation and decreased likely hood of overlap
         self.velocity = [random.choice([-2, -1, 1, 2]), random.choice([-2, -1, 1, 2])]
+        # Set the initial position to be somewhere random in the game area
+        screen_size = pygame.display.get_window_size()
+        self.rect.center = [random.randint(0, screen_size[0] / 2), random.randint(0, screen_size[1] / 2)]
         self.explosion_sound = load_sound('explosion.wav')
 
     def update(self):
