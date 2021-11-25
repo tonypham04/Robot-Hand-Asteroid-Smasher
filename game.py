@@ -79,6 +79,9 @@ class Asteroid(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # TODO: Change velocity to be a random float for move variation and decreased likely hood of overlap
         self.velocity = [random.choice([-2, -1, 1, 2]), random.choice([-2, -1, 1, 2])]
+        # Set the initial position to be somewhere random in the game area
+        screen_size = pygame.display.get_window_size()
+        self.rect.center = [random.randint(0, screen_size[0] / 2), random.randint(0, screen_size[1] / 2)]
         self.explosion_sound = load_sound('explosion.wav')
 
     def update(self):
@@ -110,12 +113,24 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = load_image('player.png', (255, 255, 255))
         self.rect = self.image.get_rect()
+        self.smashing = False
 
     def update(self):
         """Updates the player position based on where the mouse cursor is."""
         pos = pygame.mouse.get_pos()
         # The actual gameview is 1/2 the screen size so divide the mouse coordinates by 2 to account for the 2x scaling
         self.rect.center = (pos[0] / 2, pos[1] / 2)
+
+    def smash(self):
+        """Changes the player image to that of the robot hand in a clenched fist state."""
+        # Change to image of robot hand clenched into a fist
+        self.image = load_image('smash.png', (255, 255, 255))
+        self.smashing = True
+
+    def unsmash(self):
+        """Changes the player image back to it's original state if the player was attempting a smash previously."""
+        if self.smashing:
+            self.image = load_image('player.png', (255, 255, 255))
 
 def create_asteroids(nun_asteroids: int) -> list[Asteroid]:
     """Returns a list of asteroids containing the specified number of asteroids"""
@@ -178,6 +193,8 @@ def main():
     pygame.display.set_caption('Robot Hand Asteroid Smasher')
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
+    background_track = load_sound('background.wav')
+    background_track.play(loops=-1)
     # Prepare game objects
     player = Player()
     num_asteroids = 3
@@ -195,6 +212,7 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and game_active:
+                player.smash()
                 hit_list = pygame.sprite.spritecollide(player, sprites_group, False)
                 hit_asteroids = [obj for obj in hit_list if type(obj) == Asteroid]
                 if len(hit_asteroids) != 0:
@@ -210,6 +228,8 @@ def main():
                     num_asteroids += 1
                     asteroids = create_asteroids(num_asteroids)
                     sprites_group.add(asteroids)
+            if event.type == pygame.MOUSEBUTTONUP and game_active:
+                player.unsmash()
         # TODO: Refill the sprite group with asteroids with one more asteroid then before once all asteroids have been destroyed.
         sprites_group.update()
         gameview.fill((0, 0, 0))
@@ -264,3 +284,4 @@ if __name__ == '__main__':
 # Line by Line Chimp (pygame docs, https://www.pygame.org/docs/tut/ChimpLineByLine.html)
 # pygame.Surface.set_colorkey (pygame docs, https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_colorkey)
 # Pixeltype.ttf font obtained from: https://github.com/clear-code-projects/UltimatePygameIntro/tree/main/font
+# pygame.mixer.Sound.play (pygame docs, https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound.play)
