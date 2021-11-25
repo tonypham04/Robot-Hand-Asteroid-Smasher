@@ -193,6 +193,8 @@ def main():
     pygame.display.set_caption('Robot Hand Asteroid Smasher')
     pygame.mouse.set_visible(False)
     clock = pygame.time.Clock()
+    background_track = load_sound('background.wav')
+    background_track.play(loops=-1)
     # Prepare game objects
     player = Player()
     num_asteroids = 3
@@ -282,3 +284,4 @@ if __name__ == '__main__':
 # Line by Line Chimp (pygame docs, https://www.pygame.org/docs/tut/ChimpLineByLine.html)
 # pygame.Surface.set_colorkey (pygame docs, https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_colorkey)
 # Pixeltype.ttf font obtained from: https://github.com/clear-code-projects/UltimatePygameIntro/tree/main/font
+# pygame.mixer.Sound.play (pygame docs, https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound.play)
