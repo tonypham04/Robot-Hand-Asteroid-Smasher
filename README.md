@@ -18,3 +18,16 @@ of the basics like blitting an image onto the screen and detecting mouse movemen
 Thus, [Robot Hand Asteroid Smasher](https://github.com/tonypham04/Robot-Hand-Asteroid-Smasher "RHAS Repo") was born.
 
 ## References
+
+## Developer Notes
+### Thursday, November 25, 2021
+Attempted to create an executable file using [Pyinstaller](https://pyinstaller.readthedocs.io/en/stable/installation.html "Install Pyinstaller") with the following commands:
+```
+pyinstaller game.py --onefile --noconsole
+pyinstaller --onefile -w game.py
+```
+The problem is Windows 10 flags the generated executable as a virus and then deletes it :frowning:.
+Lessons learned here are:
+- [Pyinstaller](https://www.pyinstaller.org/ "Pyinstaller Quickstart") creates the executable in the "dist" directory
+- The resulting filename.spec file, and contents in the build directory are not needed
+- Even without Windows 10 flagging the executable, the .exe file needs access to the assets, files, etc it would have needed running as a Python file
