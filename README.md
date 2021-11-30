@@ -8,7 +8,8 @@ Good luck!
 - [Pygame 2.0.1](https://www.pygame.org/docs/ "Pygame Documentation")
 - [Visual Studio Code](https://code.visualstudio.com/ "VS Code")
 - Microsoft Paint
-- [BeepBox](beepbox.co/ "BeepBox")
+- [BeepBox](beepbox.co/ "BeepBox by John Nesky")
+- [sfxr](http://www.drpetter.se/project_sfxr.html "sfxr by DrPetter")
 
 ## Motivation Behind the Game
 I was inspired by the games made by YouTuber [DaFluffyPotato](https://www.youtube.com/c/DaFluffyPotato "DaFluffyPotato's YouTube Channel")
