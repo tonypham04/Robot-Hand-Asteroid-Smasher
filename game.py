@@ -280,8 +280,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-# References
-# Line by Line Chimp (pygame docs, https://www.pygame.org/docs/tut/ChimpLineByLine.html)
-# pygame.Surface.set_colorkey (pygame docs, https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_colorkey)
-# Pixeltype.ttf font obtained from: https://github.com/clear-code-projects/UltimatePygameIntro/tree/main/font
-# pygame.mixer.Sound.play (pygame docs, https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound.play)
