@@ -18,6 +18,10 @@ of the basics like blitting an image onto the screen and detecting mouse movemen
 Thus, [Robot Hand Asteroid Smasher](https://github.com/tonypham04/Robot-Hand-Asteroid-Smasher "RHAS Repo") was born.
 
 ## References
+- [Line by Line Chimp](https://www.pygame.org/docs/tut/ChimpLineByLine.html "Line by Link Chimp Tutorial from Pygame docs")
+- [pygame.Surface.set_colorkey](https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_colorkey "set_colorkey method from Pygame docs")
+- [Pixeltype.ttf](https://github.com/clear-code-projects/UltimatePygameIntro/tree/main/font "Source of the Pixeltype.tff file used in this project")
+- [pygame.mixer.Sound.play](https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound.play "play method from Pygame docs")
 
 ## Developer Notes
 ### Thursday, November 25, 2021
